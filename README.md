@@ -34,11 +34,11 @@ const app = new Vue({
 		        "amount"    : 42
 		    },
 		    {
-		        "name"      : "Thessaloniki",
-		        "city"      : "Athens",
-		        "country"   : "Greece",
-		        "birthdate" : "1987-11-23",
-		        "amount"    : 42
+		        "name"      : "Taksim",
+		        "city"      : "Istanbul",
+		        "country"   : "Turkey",
+		        "birthdate" : "1982-10-31",
+		        "amount"    : 666
 		    }
 		],
 ```
