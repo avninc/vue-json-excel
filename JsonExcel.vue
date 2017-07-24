@@ -24,7 +24,7 @@
                 type: Array,
                 required: true
             },
-            'fields':{
+            'vfields':{
                 type: Object,
                 required: true
             },
@@ -44,7 +44,7 @@
         methods: {
             emitXmlHeader: function () {
                 var headerRow =  '<ss:Row>\n';
-                for (var colName in this.fields) {
+                for (var colName in this.vfields) {
                     headerRow += '  <ss:Cell>\n';
                     headerRow += '    <ss:Data ss:Type="String">';
                     headerRow += '       <strong>' + (colName == 'id' ? '#' : this.upperFirst(colName)) + '</strong> </ss:Data>\n';
@@ -81,9 +81,9 @@
                     xml += '<ss:Row>\n';
 
                     for (col in data[row]) {
-                        if( this.fields[col] !== undefined) {
+                        if( this.vfields[col] !== undefined) {
                             xml += '  <ss:Cell>\n';
-                            xml += '    <ss:Data ss:Type="' + this.fields[col] + '">';
+                            xml += '    <ss:Data ss:Type="' + this.vfields[col] + '">';
                             xml += String(data[row][col]).replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;') + '</ss:Data>\n';
                             xml += '  </ss:Cell>\n';
                         }
