@@ -1,8 +1,8 @@
 <template>
 	<a
-		href="#"
-		:id="id_name"
-		@click="generate_excel">
+			href="#"
+			:id="id_name"
+			@click="generate_excel">
 		<slot>
 			Download Excel
 		</slot>
@@ -12,93 +12,98 @@
 
 
 <script>
-export default {
-	data: function(){
-		return {
-			animate   : true,
-			animation : '',
-		}
-	},
-	props: {
-		'data':{
-			type: Array,
-			required: true
-		},
-		'fields':{
-			type: Object,
-			required: true
-		},
-		'name':{
-			type: String,
-			default: "data.xls"
-		}
-	},
-	created: function () {
-	},
-	computed:{
-		id_name : function(){
-			var now = new Date().getTime();
-			return 'export_'+now;
-		}
-	},
-	methods: {
-		emitXmlHeader: function () {
-		    var headerRow =  '<ss:Row>\n';
-		    for (var colName in this.fields) {
-		        headerRow += '  <ss:Cell>\n';
-		        headerRow += '    <ss:Data ss:Type="String">';
-		        headerRow += colName + '</ss:Data>\n';
-		        headerRow += '  </ss:Cell>\n';
-		    }
-		    headerRow += '</ss:Row>\n';
-		    return '<?xml version="1.0"?>\n' +
-		           '<ss:Workbook xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet">\n' +
-		           '<ss:Worksheet ss:Name="Sheet1">\n' +
-		           '<ss:Table>\n\n' + headerRow;
-		},
+    export default {
+        data: function(){
+            return {
+                animate   : true,
+                animation : '',
+            }
+        },
+        props: {
+            'data':{
+                type: Array,
+                required: true
+            },
+            'fields':{
+                type: Object,
+                required: true
+            },
+            'name':{
+                type: String,
+                default: "data.xls"
+            }
+        },
+        created: function () {
+        },
+        computed:{
+            id_name : function(){
+                var now = new Date().getTime();
+                return 'export_' + now;
+            }
+        },
+        methods: {
+            emitXmlHeader: function () {
+                var headerRow =  '<ss:Row>\n';
+                for (var colName in this.fields) {
+                    headerRow += '  <ss:Cell>\n';
+                    headerRow += '    <ss:Data ss:Type="String">';
+                    headerRow += '       <strong>' + (colName == 'id' ? '#' : this.upperFirst(colName)) + '</strong> </ss:Data>\n';
+                    headerRow += '  </ss:Cell>\n';
+                }
+                headerRow += '</ss:Row>\n';
+                return '<?xml version="1.0"?>\n' +
+                    '<ss:Workbook xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet">\n' +
+                    '<ss:Worksheet ss:Name="Sheet1">\n' +
+                    '<ss:Table>\n\n' + headerRow;
+            },
 
-		emitXmlFooter: function() {
-		    return '\n</ss:Table>\n' +
-		           '</ss:Worksheet>\n' +
-		           '</ss:Workbook>\n';
-		},
+            emitXmlFooter: function() {
+                return '\n</ss:Table>\n' +
+                    '</ss:Worksheet>\n' +
+                    '</ss:Workbook>\n';
+            },
 
-		jsonToSsXml: function (jsonObject) {
-		    var row;
-		    var col;
-		    var xml;
-			console.log(jsonObject);
-		    var data = typeof jsonObject != "object"
-		             ? JSON.parse(jsonObject)
-		             : jsonObject;
+            upperFirst: function(str) {
+                return str.charAt(0).toUpperCase() + str.slice(1);
+            },
 
-		    xml = this.emitXmlHeader();
+            jsonToSsXml: function (jsonObject) {
+                var row;
+                var col;
+                var xml;
+                var data = typeof jsonObject != "object"
+                    ? JSON.parse(jsonObject)
+                    : jsonObject;
 
-		    for (row = 0; row < data.length; row++) {
-		        xml += '<ss:Row>\n';
+                xml = this.emitXmlHeader();
 
-		        for (col in data[row]) {
-		            xml += '  <ss:Cell>\n';
-		            xml += '    <ss:Data ss:Type="' + this.fields[col]  + '">';
-		            xml += String(data[row][col]).replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;') + '</ss:Data>\n';
-		            xml += '  </ss:Cell>\n';
-		        }
+                for (row = 0; row < data.length; row++) {
+                    xml += '<ss:Row>\n';
 
-		        xml += '</ss:Row>\n';
-		    }
+                    for (col in data[row]) {
+                        if( this.fields[col] !== undefined) {
+                            xml += '  <ss:Cell>\n';
+                            xml += '    <ss:Data ss:Type="' + this.fields[col] + '">';
+                            xml += String(data[row][col]).replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;') + '</ss:Data>\n';
+                            xml += '  </ss:Cell>\n';
+                        }
+                    }
 
-		    xml += this.emitXmlFooter();
-		    return xml;
-		},
-		generate_excel: function (content, filename, contentType) {
-		    var blob = new Blob([this.jsonToSsXml(this.data)], {
-		        'type': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
-		    });
+                    xml += '</ss:Row>\n';
+                }
 
-			var a = document.getElementById(this.id_name);
-		    a.href = window.URL.createObjectURL(blob);
-		    a.download = this.name;
-		}
-	}
-}
+                xml += this.emitXmlFooter();
+                return xml;
+            },
+            generate_excel: function (content, filename, contentType) {
+                var blob = new Blob([this.jsonToSsXml(this.data)], {
+                    'type': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+                });
+
+                var a = document.getElementById(this.id_name);
+                a.href = window.URL.createObjectURL(blob);
+                a.download = this.name;
+            }
+        }
+    }
 </script>
